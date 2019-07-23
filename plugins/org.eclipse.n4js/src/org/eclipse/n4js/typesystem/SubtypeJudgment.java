@@ -89,14 +89,45 @@ import com.google.common.collect.Iterables;
 		return result;
 	}
 
-	private Result doApply(RuleEnvironment G, TypeArgument leftArg, TypeArgument rightArg) {
-
-		// get rid of wildcards by taking their upper/lower bound
-		final TypeRef left = leftArg instanceof Wildcard ? ts.upperBound(G, leftArg) : (TypeRef) leftArg;
-		final TypeRef right = rightArg instanceof Wildcard ? ts.lowerBound(G, rightArg) : (TypeRef) rightArg;
-		if (left == null || right == null) {
+	private Result doApply(RuleEnvironment G, TypeArgument leftTypeArg, TypeArgument rightTypeArg) {
+		if (leftTypeArg == null || rightTypeArg == null) {
 			return failure();
 		}
+
+		// get rid of wildcards by taking their upper/lower bound
+		final TypeRef left;
+		final TypeRef right;
+		final boolean leftIsWildcard = leftTypeArg instanceof Wildcard;
+		final boolean rightIsWildcard = rightTypeArg instanceof Wildcard;
+		if (leftIsWildcard && rightIsWildcard) {
+			// wildcard on both sides
+			// --> bounds of leftTypeArg must lie within the bounds of rightTypeArg
+			final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
+			final TypeRef lowerBoundLeft = ts.lowerBound(G, leftTypeArg);
+			final TypeRef upperBoundRight = ts.upperBound(G, rightTypeArg);
+			final TypeRef lowerBoundRight = ts.lowerBound(G, rightTypeArg);
+			return requireAllSuccess(
+					ts.subtype(G, upperBoundLeft, upperBoundRight),
+					ts.subtype(G, lowerBoundRight, lowerBoundLeft));
+		} else if (leftIsWildcard) {
+			// wildcard only on left side
+			// --> upper bound of leftTypeArg must be subtype of rightTypeArg
+			left = ts.upperBound(G, leftTypeArg);
+			right = (TypeRef) rightTypeArg;
+		} else if (rightIsWildcard) {
+			// wildcard only on right side
+			// --> leftTypeArg must be subtype of lower bound of rightTypeArg
+			left = (TypeRef) leftTypeArg;
+			right = ts.lowerBound(G, rightTypeArg);
+		} else {
+			left = (TypeRef) leftTypeArg;
+			right = (TypeRef) rightTypeArg;
+		}
+
+		return doApplyTypeRefs(G, left, right);
+	}
+
+	private Result doApplyTypeRefs(RuleEnvironment G, TypeRef left, TypeRef right) {
 
 		// ComposedTypeRef
 		if (left instanceof UnionTypeExpression) {

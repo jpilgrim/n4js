@@ -155,12 +155,12 @@ public class N4JSTypeSystem {
 		return equaltype(G, left, right).isSuccess();
 	}
 
-	/** Returns the upper bound of the given type wrapped in a {@link Result}. Never returns <code>null</code>. */
+	/** Returns the upper bound of the given type. Never returns <code>null</code>. */
 	public TypeRef upperBound(RuleEnvironment G, TypeArgument typeArgument) {
 		return boundJudgment.applyUpperBound(G, typeArgument);
 	}
 
-	/** Returns the lower bound of the given type wrapped in a {@link Result}. Never returns <code>null</code>. */
+	/** Returns the lower bound of the given type. Never returns <code>null</code>. */
 	public TypeRef lowerBound(RuleEnvironment G, TypeArgument typeArgument) {
 		return boundJudgment.applyLowerBound(G, typeArgument);
 	}
