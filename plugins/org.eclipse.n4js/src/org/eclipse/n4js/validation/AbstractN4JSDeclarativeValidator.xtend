@@ -47,6 +47,7 @@ import org.eclipse.n4js.ts.scoping.builtin.BuiltInTypeScope
 import org.eclipse.n4js.ts.typeRefs.FunctionTypeExpression
 import org.eclipse.n4js.ts.typeRefs.ParameterizedTypeRef
 import org.eclipse.n4js.ts.typeRefs.TypeArgument
+import org.eclipse.n4js.ts.typeRefs.TypeRef
 import org.eclipse.n4js.ts.typeRefs.Wildcard
 import org.eclipse.n4js.ts.types.IdentifiableElement
 import org.eclipse.n4js.ts.types.MemberType
@@ -248,9 +249,11 @@ public abstract class AbstractN4JSDeclarativeValidator extends AbstractMessageAd
 				// check bounds
 				val isExceptionCase = TypeUtils.isVoid(typeArgument); // in this case another validation will show an error (avoid duplicate messages)
 				if(!isExceptionCase) {
-					val upperBound = typeParameter.declaredUpperBound ?: N4JSLanguageUtils.getTypeVariableImplicitUpperBound(G_subst);
-					val substituted = ts.substTypeVariables(G_subst, upperBound);
-					val result = ts.subtype(G_subst, typeArgument, substituted);
+					val G = source.newRuleEnvironment;
+					val argUpperBound = if (typeArgument instanceof Wildcard) ts.upperBound(G, typeArgument) else (typeArgument as TypeRef);
+					val paramUpperBound = typeParameter.declaredUpperBound ?: N4JSLanguageUtils.getTypeVariableImplicitUpperBound(G_subst);
+					val paramUpperBoundSubstituted = ts.substTypeVariables(G_subst, paramUpperBound);
+					val result = ts.subtype(G_subst, argUpperBound, paramUpperBoundSubstituted);
 					if (result.failure) {
 						createTypeError(result, typeArgument);
 					}

@@ -83,6 +83,7 @@ import org.eclipse.n4js.ts.typeRefs.FunctionTypeExpression
 import org.eclipse.n4js.ts.typeRefs.IntersectionTypeExpression
 import org.eclipse.n4js.ts.typeRefs.ParameterizedTypeRef
 import org.eclipse.n4js.ts.typeRefs.ThisTypeRef
+import org.eclipse.n4js.ts.typeRefs.TypeArgument
 import org.eclipse.n4js.ts.typeRefs.TypeRef
 import org.eclipse.n4js.ts.typeRefs.TypeRefsFactory
 import org.eclipse.n4js.ts.typeRefs.TypeTypeRef
@@ -1321,7 +1322,7 @@ class N4JSExpressionValidator extends AbstractN4JSDeclarativeValidator {
 						var int i = 0;
 						while (i < to && (
 
-							ts.subtypeSucceeded(G, ptrT.typeArgs.get(i), ptrS.typeArgs.get(i))
+							subtypeSucceeded(G, ptrT.typeArgs.get(i), ptrS.typeArgs.get(i))
 							)
 							) {
 							i++;
@@ -1331,7 +1332,7 @@ class N4JSExpressionValidator extends AbstractN4JSDeclarativeValidator {
 						} else {
 							i = 0;
 							while (i < to &&
-								ts.subtypeSucceeded(G, ptrS.typeArgs.get(i), ptrT.typeArgs.get(i))) {
+								subtypeSucceeded(G, ptrS.typeArgs.get(i), ptrT.typeArgs.get(i))) {
 								i++;
 							}
 							castOK = i == to;
@@ -1361,6 +1362,13 @@ class N4JSExpressionValidator extends AbstractN4JSDeclarativeValidator {
 			}
 		}
 		return true;
+	}
+
+	private def boolean subtypeSucceeded(RuleEnvironment G, TypeArgument leftArg, TypeArgument rightArg) {
+		// get rid of wildcards by taking their upper/lower bound
+		val left = if (leftArg instanceof Wildcard) ts.upperBound(G, leftArg) else leftArg as TypeRef;
+		val right = if (rightArg instanceof Wildcard) ts.lowerBound(G, rightArg) else rightArg as TypeRef;
+		return ts.subtypeSucceeded(G, left, right);
 	}
 
 	/**

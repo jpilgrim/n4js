@@ -13,15 +13,15 @@ package org.eclipse.n4js.typesystem.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.n4js.ts.typeRefs.TypeArgument;
+import org.eclipse.n4js.ts.typeRefs.TypeRef;
 import org.eclipse.n4js.typesystem.N4JSTypeSystem;
 import org.eclipse.n4js.utils.UtilN4;
 
 import com.google.common.base.Joiner;
 
 /**
- * Result of subtype checking with {@link N4JSTypeSystem#subtype(RuleEnvironment, TypeArgument, TypeArgument)} and
- * similar methods. In case of failure, it might provide a human-readable failure message and a cause in form of another
+ * Result of subtype checking with {@link N4JSTypeSystem#subtype(RuleEnvironment, TypeRef, TypeRef)} and similar
+ * methods. In case of failure, it might provide a human-readable failure message and a cause in form of another
  * instance of this class.
  */
 public final class Result {

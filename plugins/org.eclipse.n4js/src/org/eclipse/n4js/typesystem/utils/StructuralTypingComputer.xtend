@@ -18,7 +18,6 @@ import org.eclipse.emf.ecore.util.EcoreUtil.EqualityHelper
 import org.eclipse.n4js.AnnotationDefinition
 import org.eclipse.n4js.ts.typeRefs.ExistentialTypeRef
 import org.eclipse.n4js.ts.typeRefs.OptionalFieldStrategy
-import org.eclipse.n4js.ts.typeRefs.TypeArgument
 import org.eclipse.n4js.ts.typeRefs.TypeRef
 import org.eclipse.n4js.ts.types.FieldAccessor
 import org.eclipse.n4js.ts.types.PrimitiveType
@@ -503,7 +502,7 @@ class StructuralTypingComputer extends TypeSystemHelperStrategy {
 		new TypeCompareUtils.SemanticEqualsWrapper(typeRef);
 	}
 
-	def private Pair<TypeArgument, TypeArgument> getMemberTypes(TMember leftMember, TMember rightMember,
+	def private Pair<TypeRef, TypeRef> getMemberTypes(TMember leftMember, TMember rightMember,
 		StructTypingInfo info) {
 
 		val G = info.G;

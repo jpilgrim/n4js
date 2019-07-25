@@ -77,9 +77,9 @@ import com.google.common.collect.Iterables;
 
 /* package */ final class SubtypeJudgment extends AbstractJudgment {
 
-	/** See {@link N4JSTypeSystem#subtype(RuleEnvironment, TypeArgument, TypeArgument)}. */
-	public Result apply(RuleEnvironment G, TypeArgument left, TypeArgument right) {
-		Result result = doApply(G, left, right);
+	/** See {@link N4JSTypeSystem#subtype(RuleEnvironment, TypeRef, TypeRef)}. */
+	public Result apply(RuleEnvironment G, TypeRef left, TypeRef right) {
+		Result result = doApplyTypeRefs(G, left, right);
 		if (result.isFailure()) {
 			// set default failure message
 			final String leftMsg = left != null ? left.getTypeRefAsString() : "<null>";
@@ -89,45 +89,10 @@ import com.google.common.collect.Iterables;
 		return result;
 	}
 
-	private Result doApply(RuleEnvironment G, TypeArgument leftTypeArg, TypeArgument rightTypeArg) {
-		if (leftTypeArg == null || rightTypeArg == null) {
+	private Result doApplyTypeRefs(RuleEnvironment G, TypeRef left, TypeRef right) {
+		if (left == null || right == null) {
 			return failure();
 		}
-
-		// get rid of wildcards by taking their upper/lower bound
-		final TypeRef left;
-		final TypeRef right;
-		final boolean leftIsWildcard = leftTypeArg instanceof Wildcard;
-		final boolean rightIsWildcard = rightTypeArg instanceof Wildcard;
-		if (leftIsWildcard && rightIsWildcard) {
-			// wildcard on both sides
-			// --> bounds of leftTypeArg must lie within the bounds of rightTypeArg
-			final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
-			final TypeRef lowerBoundLeft = ts.lowerBound(G, leftTypeArg);
-			final TypeRef upperBoundRight = ts.upperBound(G, rightTypeArg);
-			final TypeRef lowerBoundRight = ts.lowerBound(G, rightTypeArg);
-			return requireAllSuccess(
-					ts.subtype(G, upperBoundLeft, upperBoundRight),
-					ts.subtype(G, lowerBoundRight, lowerBoundLeft));
-		} else if (leftIsWildcard) {
-			// wildcard only on left side
-			// --> upper bound of leftTypeArg must be subtype of rightTypeArg
-			left = ts.upperBound(G, leftTypeArg);
-			right = (TypeRef) rightTypeArg;
-		} else if (rightIsWildcard) {
-			// wildcard only on right side
-			// --> leftTypeArg must be subtype of lower bound of rightTypeArg
-			left = (TypeRef) leftTypeArg;
-			right = ts.lowerBound(G, rightTypeArg);
-		} else {
-			left = (TypeRef) leftTypeArg;
-			right = (TypeRef) rightTypeArg;
-		}
-
-		return doApplyTypeRefs(G, left, right);
-	}
-
-	private Result doApplyTypeRefs(RuleEnvironment G, TypeRef left, TypeRef right) {
 
 		// ComposedTypeRef
 		if (left instanceof UnionTypeExpression) {
@@ -501,11 +466,12 @@ import com.google.common.collect.Iterables;
 			// case: type|constructor{} <: type{} AND right doesn't contain wildcard
 
 			// check type arguments
+			final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
 			return requireAllSuccess(
-					ts.subtype(G, leftTypeArg, rightTypeArg));
+					ts.subtype(G, upperBoundLeft, (TypeRef) rightTypeArg));
 
 		} else if (rightHasTypeRef && rightIsCtorRef) {
-			// constructor{} <: constructor{} AND right doesn't contain wildcard
+			// case: constructor{} <: constructor{} AND right doesn't contain wildcard
 
 			final Type left_staticType = typeSystemHelper.getStaticType(G, left);
 			final Type right_staticType = typeSystemHelper.getStaticType(G, right);
@@ -529,7 +495,8 @@ import com.google.common.collect.Iterables;
 			}
 
 			// check type arguments
-			final Result result = ts.subtype(G, leftTypeArg, rightTypeArg);
+			final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
+			final Result result = ts.subtype(G, upperBoundLeft, (TypeRef) rightTypeArg);
 			if (!result.isSuccess()) {
 				return failure(result);
 			}
@@ -575,7 +542,7 @@ import com.google.common.collect.Iterables;
 			}
 
 		} else {
-			// any combination except type{} <: constructor{} AND right contains wildcard
+			// case: any combination except type{} <: constructor{} AND right contains wildcard
 
 			final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
 			final TypeRef lowerBoundLeft = ts.lowerBound(G, leftTypeArg);
@@ -589,7 +556,7 @@ import com.google.common.collect.Iterables;
 	}
 
 	private Result applyExistentialTypeRef_Left(RuleEnvironment G,
-			ExistentialTypeRef existentialTypeRef, TypeArgument right) {
+			ExistentialTypeRef existentialTypeRef, TypeRef right) {
 		if (isExistentialTypeToBeReopened(G, existentialTypeRef)) {
 			// special case: open existential
 			// --> we may pick any valid type we want for 'existentialTypeRef'
@@ -619,7 +586,7 @@ import com.google.common.collect.Iterables;
 	}
 
 	private Result applyExistentialTypeRef_Right(RuleEnvironment G,
-			TypeArgument left, ExistentialTypeRef existentialTypeRef) {
+			TypeRef left, ExistentialTypeRef existentialTypeRef) {
 		if (isExistentialTypeToBeReopened(G, existentialTypeRef)) {
 			// special case: open existential
 			// --> we may pick any valid type we want for 'existentialTypeRef'
@@ -669,7 +636,7 @@ import com.google.common.collect.Iterables;
 	}
 
 	private Result applyBoundThisTypeRef_Left(RuleEnvironment G,
-			BoundThisTypeRef boundThisTypeRef, TypeArgument right) {
+			BoundThisTypeRef boundThisTypeRef, TypeRef right) {
 		if (boundThisTypeRef == right) {
 			return success();
 		}
@@ -679,7 +646,7 @@ import com.google.common.collect.Iterables;
 	}
 
 	private Result applyBoundThisTypeRef_Right(RuleEnvironment G,
-			TypeArgument left, BoundThisTypeRef boundThisTypeRef) {
+			TypeRef left, BoundThisTypeRef boundThisTypeRef) {
 		if (left == boundThisTypeRef) {
 			return success();
 		}

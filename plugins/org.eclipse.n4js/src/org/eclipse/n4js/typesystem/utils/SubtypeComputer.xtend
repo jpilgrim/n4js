@@ -14,7 +14,6 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import java.util.List
 import org.eclipse.n4js.ts.typeRefs.FunctionTypeExprOrRef
-import org.eclipse.n4js.ts.typeRefs.TypeArgument
 import org.eclipse.n4js.ts.typeRefs.TypeRef
 import org.eclipse.n4js.ts.types.TClassifier
 import org.eclipse.n4js.ts.types.TFormalParameter
@@ -294,7 +293,7 @@ package class SubtypeComputer extends TypeSystemHelperStrategy {
 		return true
 	}
 
-	private def boolean isSubtype(RuleEnvironment G, TypeArgument left, TypeArgument right) {
+	private def boolean isSubtype(RuleEnvironment G, TypeRef left, TypeRef right) {
 		return ts.subtype(G, left, right).success;
 	}
 }

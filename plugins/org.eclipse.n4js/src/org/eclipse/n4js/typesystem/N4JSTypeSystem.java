@@ -121,17 +121,17 @@ public class N4JSTypeSystem {
 	}
 
 	/** Tells if {@code left} is a subtype of {@code right}. Never returns <code>null</code>. */
-	public Result subtype(RuleEnvironment G, TypeArgument left, TypeArgument right) {
+	public Result subtype(RuleEnvironment G, TypeRef left, TypeRef right) {
 		return subtypeJudgment.apply(G, left, right);
 	}
 
 	/** Tells if {@code left} is a subtype of {@code right}. */
-	public boolean subtypeSucceeded(RuleEnvironment G, TypeArgument left, TypeArgument right) {
+	public boolean subtypeSucceeded(RuleEnvironment G, TypeRef left, TypeRef right) {
 		return subtype(G, left, right).isSuccess();
 	}
 
 	/** Tells if {@code left} is a super type of {@code right}. Never returns <code>null</code>. */
-	public Result supertype(RuleEnvironment G, TypeArgument left, TypeArgument right) {
+	public Result supertype(RuleEnvironment G, TypeRef left, TypeRef right) {
 		if (subtype(G, right, left).isSuccess()) {
 			return Result.success();
 		} else {
@@ -141,7 +141,7 @@ public class N4JSTypeSystem {
 	}
 
 	/** Tells if {@code left} is equal to {@code right}. Never returns <code>null</code>. */
-	public Result equaltype(RuleEnvironment G, TypeArgument left, TypeArgument right) {
+	public Result equaltype(RuleEnvironment G, TypeRef left, TypeRef right) {
 		if (subtype(G, left, right).isSuccess() && subtype(G, right, left).isSuccess()) {
 			return Result.success();
 		} else {
@@ -151,7 +151,7 @@ public class N4JSTypeSystem {
 	}
 
 	/** Tells if {@code left} is equal to {@code right}. */
-	public boolean equaltypeSucceeded(RuleEnvironment G, TypeArgument left, TypeArgument right) {
+	public boolean equaltypeSucceeded(RuleEnvironment G, TypeRef left, TypeRef right) {
 		return equaltype(G, left, right).isSuccess();
 	}
 
