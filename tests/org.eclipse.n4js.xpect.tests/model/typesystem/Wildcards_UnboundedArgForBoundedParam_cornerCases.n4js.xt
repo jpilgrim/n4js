@@ -27,7 +27,7 @@ class G<T extends A> {}
 // a wildcard can only have 1 bound, either upper or lower, so if it
 // has a lower bound it must *not* inherit the parameter's upper bound
 
-// XPECT errors --> "Type argument ? super X does not satisfy upper bound A of type parameter T in class G." at "? super X"
+// XPECT errors --> "? super X is not a subtype of A." at "? super X"
 var g : G<? super X>;
 
 
