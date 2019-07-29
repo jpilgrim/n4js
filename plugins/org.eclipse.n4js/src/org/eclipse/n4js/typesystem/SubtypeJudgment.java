@@ -466,13 +466,8 @@ import com.google.common.collect.Iterables;
 			// case: type|constructor{} <: type{} AND right doesn't contain wildcard
 
 			// check type arguments
-			if (leftTypeArg instanceof Wildcard) {
-				final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
-				return requireAllSuccess(
-						ts.subtype(G, upperBoundLeft, (TypeRef) rightTypeArg));
-			}
 			return requireAllSuccess(
-					ts.subtype(G, (TypeRef) leftTypeArg, (TypeRef) rightTypeArg));
+					ts.subtype(G, toUpperBoundIfWildcard(G, leftTypeArg), (TypeRef) rightTypeArg));
 
 		} else if (rightHasTypeRef && rightIsCtorRef) {
 			// case: constructor{} <: constructor{} AND right doesn't contain wildcard
@@ -499,8 +494,7 @@ import com.google.common.collect.Iterables;
 			}
 
 			// check type arguments
-			final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
-			final Result result = ts.subtype(G, upperBoundLeft, (TypeRef) rightTypeArg);
+			final Result result = ts.subtype(G, toUpperBoundIfWildcard(G, leftTypeArg), (TypeRef) rightTypeArg);
 			if (!result.isSuccess()) {
 				return failure(result);
 			}
@@ -546,7 +540,7 @@ import com.google.common.collect.Iterables;
 			}
 
 		} else {
-			// case: any combination except type{} <: constructor{} AND right contains wildcard
+			// case: any combination except "type{} <: constructor{}" AND right contains wildcard
 
 			final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
 			final TypeRef lowerBoundLeft = ts.lowerBound(G, leftTypeArg);
@@ -688,6 +682,13 @@ import com.google.common.collect.Iterables;
 
 	// ################################################################################
 	// utility methods:
+
+	private TypeRef toUpperBoundIfWildcard(RuleEnvironment G, TypeArgument typeArg) {
+		if (typeArg instanceof Wildcard) {
+			return ts.upperBound(G, typeArg);
+		}
+		return (TypeRef) typeArg;
+	}
 
 	private Result resultFromBoolean(boolean result) {
 		return result ? success() : failure();
