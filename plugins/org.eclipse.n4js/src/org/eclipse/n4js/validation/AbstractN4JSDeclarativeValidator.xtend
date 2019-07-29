@@ -59,6 +59,7 @@ import org.eclipse.n4js.ts.types.TInterface
 import org.eclipse.n4js.ts.types.TMember
 import org.eclipse.n4js.ts.types.TMethod
 import org.eclipse.n4js.ts.types.TSetter
+import org.eclipse.n4js.ts.types.Type
 import org.eclipse.n4js.ts.types.TypeVariable
 import org.eclipse.n4js.ts.types.TypesPackage
 import org.eclipse.n4js.ts.types.util.Variance
@@ -255,7 +256,13 @@ public abstract class AbstractN4JSDeclarativeValidator extends AbstractMessageAd
 					val paramUpperBoundSubstituted = ts.substTypeVariables(G_subst, paramUpperBound);
 					val result = ts.subtype(G_subst, argUpperBound, paramUpperBoundSubstituted);
 					if (result.failure) {
-						createTypeError(result, typeArgument);
+						val containingType = typeParameter.eContainer as Type;
+						val message = IssueCodes.getMessageForEXP_TYPEARG_VIOLATES_UPPER_BOUND(
+							typeArgument.typeRefAsString,
+							paramUpperBoundSubstituted.typeRefAsString,
+							typeParameter.name,
+							containingType.description);
+						addIssue(message, typeArgument, IssueCodes.EXP_TYPEARG_VIOLATES_UPPER_BOUND);
 					}
 				}
 			}

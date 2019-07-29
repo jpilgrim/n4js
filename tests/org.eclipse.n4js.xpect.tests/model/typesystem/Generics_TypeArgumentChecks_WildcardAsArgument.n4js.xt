@@ -46,10 +46,10 @@ var g1 : G<? extends B>;
 // XPECT noerrors -->
 var g2 : G<? extends C>;
 
-// XPECT errors --> "? extends A is not a subtype of B." at "? extends A"
+// XPECT errors --> "Type argument ? extends A does not satisfy upper bound B of type parameter T in class G." at "? extends A"
 var g3 : G<? extends A>;
 
-// XPECT errors --> "? extends X is not a subtype of B." at "? extends X"
+// XPECT errors --> "Type argument ? extends X does not satisfy upper bound B of type parameter T in class G." at "? extends X"
 var g4 : G<? extends X>;
 
 

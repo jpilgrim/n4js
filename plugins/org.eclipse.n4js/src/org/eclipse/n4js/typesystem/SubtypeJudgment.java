@@ -466,9 +466,13 @@ import com.google.common.collect.Iterables;
 			// case: type|constructor{} <: type{} AND right doesn't contain wildcard
 
 			// check type arguments
-			final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
+			if (leftTypeArg instanceof Wildcard) {
+				final TypeRef upperBoundLeft = ts.upperBound(G, leftTypeArg);
+				return requireAllSuccess(
+						ts.subtype(G, upperBoundLeft, (TypeRef) rightTypeArg));
+			}
 			return requireAllSuccess(
-					ts.subtype(G, upperBoundLeft, (TypeRef) rightTypeArg));
+					ts.subtype(G, (TypeRef) leftTypeArg, (TypeRef) rightTypeArg));
 
 		} else if (rightHasTypeRef && rightIsCtorRef) {
 			// case: constructor{} <: constructor{} AND right doesn't contain wildcard
