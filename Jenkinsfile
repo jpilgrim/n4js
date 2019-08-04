@@ -49,6 +49,8 @@ pipeline {
                         """
                         // sh "mvn clean verify -P${profiles} ${options}"
                         // sh "mvn clean verify ${options}"
+
+                        // works locally
                         sh "mvn clean verify"
 
                         sh "ls -Ral builds/org.eclipse.n4js.product.build/target/repository/"
