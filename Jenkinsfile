@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        NODEJS_PATH= '/usr/bin' // '/shared/common/node-v10.15.3-linux-x64/bin'
-        YARN_PATH  = '/usr/bin' // '/shared/common/yarn/1.15.2/bin'
+        //NODEJS_PATH= '/usr/bin' // '/shared/common/node-v10.15.3-linux-x64/bin'
+        //YARN_PATH  = '/usr/bin' // '/shared/common/yarn/1.15.2/bin'
         PATH       = "${PATH}"                                          +
                      ":/opt/apache-ant-1.0.6/bin"             +
                      ":/opt/apache-maven-3.6.1/bin/"
@@ -36,9 +36,9 @@ pipeline {
                             'buildProduct',
                             'execute-plugin-tests',
                             'execute-plugin-ui-tests',
-                            'execute-ecma-tests',
-                            'execute-accesscontrol-tests',
-                            'execute-smoke-tests'
+                            'execute-ecma-tests'
+                         //   'execute-accesscontrol-tests',
+                        //    'execute-smoke-tests'
                          //'execute-hlc-integration-tests'
                         ].join(',')
 
@@ -47,8 +47,9 @@ pipeline {
                             git log -n 1
                             npm version
                         """
-                        sh "mvn clean verify -P${profiles} ${options}"
+                        // sh "mvn clean verify -P${profiles} ${options}"
                         // sh "mvn clean verify ${options}"
+                        sh "mvn clean verify"
 
                         sh "ls -Ral builds/org.eclipse.n4js.product.build/target/repository/"
                     }
